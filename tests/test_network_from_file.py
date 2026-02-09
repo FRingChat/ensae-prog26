@@ -1,5 +1,6 @@
-import sys 
+import sys
 from pathlib import Path
+
 ROOT = Path(__file__).parent.parent
 sys.path.append(str(ROOT / "code"))
 
@@ -7,6 +8,7 @@ NET_DIR = ROOT / "examples"
 
 import unittest 
 from network import Network
+
 
 class Test_NetworkLoading(unittest.TestCase):
     def test_network_small(self):

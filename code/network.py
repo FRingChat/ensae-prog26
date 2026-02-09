@@ -1,4 +1,5 @@
-from graph import *
+from graph import Graph
+
 
 class Network:
     """
@@ -7,24 +8,24 @@ class Network:
 
     def __init__(self, roads={}, start=None, end=None):
         """
-        Initializes the network from a dictionary roads. 
+        Initializes the network from a dictionary roads.
 
         Parameters: 
         -----------
         roads: dict
-            A dictionary of the roads as an adjacency list, that is 
+            A dictionary of the roads as an adjacency list, that is
             roads[u] = list of (v, length, fatigue)
-            Ex: roads = {v0: [(v1, 21, 2), (v2, 12, 4)], 
-                        v1: [(v0, 74, 2), (v2, 32, 1)], 
+            Ex: roads = {v0: [(v1, 21, 2), (v2, 12, 4)],
+                        v1: [(v0, 74, 2), (v2, 32, 1)],
                         ...}
-        start, end: 
+        start, end:
             Start and end nodes added as attributes
         """
         self._roads = roads
         self.start = start
         self.end = end
 
-    def __str__(self): 
+    def __str__(self):
         """
         Prints the network as text.
         """
@@ -53,9 +54,14 @@ class Network:
 
     def build_simple_graph(self):
         """
-        Builds an object of type Graph from the network, by ignoring the fatigue coefficient. 
+        Builds an object of type Graph from the network, by ignoring the fatigue coefficient.
         """
         # TODO: implement the method
         raise NotImplementedError
 
+        edges = {}  # On enlève la fatigue des chemins
+        for elt in roads.keys():
 
+            edges[elt] = 
+
+        simple_graph = Graph()
