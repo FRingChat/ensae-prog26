@@ -59,9 +59,26 @@ class Network:
         # TODO: implement the method
         raise NotImplementedError
 
-        edges = {}  # On enlève la fatigue des chemins
+        # On enlève la fatigue des chemins
+        edges = {}  
         for elt in roads.keys():
+            edges[elt] = []
+            for road in roads[elt]:
 
-            edges[elt] = 
+                arr, long, fatigue = road
+                edges[elt].append( (arr, long, 0) )
 
-        simple_graph = Graph()
+        simple_graph = Graph(edges)
+
+    def longueur(self, depart, arrivee):
+        liste_route = self._roads[depart]
+        for route in liste_route :
+            arr, longueur, fatigue = route
+            if arr == arrivee :
+                return longueur
+    
+    def longueur_chemin(self, chemin):
+        lon = 0
+        for i in range( len(chemin) - 1 ):
+            lon += self.longueur( chemin[i], chemin[i+1])
+        return lon

@@ -28,3 +28,15 @@ class Graph:
         if node not in self._edges:
             return []
         return self._edges[node]
+
+    def shortest_path(self, depart, arrivee, chemin = [], chemin_trouve = []):
+        if depart not in chemin :
+            chemin.append(depart)
+            for point in self.neighbours(depart):
+                if point == arrivee :
+                    chemin.append(point)
+                    chemin_trouve.append(chemin)  
+                else :
+                    self.shortest_path(point, arrivee, chemin, chemin_trouve)
+                    
+        return chemin_trouve
