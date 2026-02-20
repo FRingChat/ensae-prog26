@@ -3,14 +3,14 @@ from graph import Graph
 
 class Network:
     """
-    Class for a network that represents the environment (with length and fatigue on roads). 
+    Class for a network that represents the environment (with length and fatigue on roads).
     """
 
     def __init__(self, roads={}, start=None, end=None):
         """
         Initializes the network from a dictionary roads.
 
-        Parameters: 
+        Parameters:
         -----------
         roads: dict
             A dictionary of the roads as an adjacency list, that is
@@ -45,9 +45,9 @@ class Network:
         with open(filename, "r") as testcase:
             nb, start, end = testcase.readline().strip().split()
             for _ in range(int(nb)):
-                i, j, l, f = testcase.readline().strip().split()
-                l, f = int(l), int(f)
-                roads.setdefault(i, []).append((j, l, f))
+                i, j, lo, f = testcase.readline().strip().split()
+                lo, f = int(lo), int(f)
+                roads.setdefault(i, []).append((j, lo, f))
                 roads.setdefault(j, [])
 
         return cls(roads=roads, start=start, end=end)
@@ -57,28 +57,38 @@ class Network:
         Builds an object of type Graph from the network, by ignoring the fatigue coefficient.
         """
         # TODO: implement the method
-        raise NotImplementedError
+        # raise NotImplementedError
 
         # On enlève la fatigue des chemins
-        edges = {}  
+        roads = self._roads
+        edges = {}
         for elt in roads.keys():
             edges[elt] = []
-            for road in roads[elt]:
 
+            for road in roads[elt]:
                 arr, long, fatigue = road
-                edges[elt].append( (arr, long, 0) )
+                edges[elt].append((arr, long))
 
         simple_graph = Graph(edges)
+        return simple_graph
 
-    def longueur(self, depart, arrivee):
-        liste_route = self._roads[depart]
-        for route in liste_route :
-            arr, longueur, fatigue = route
-            if arr == arrivee :
-                return longueur
-    
-    def longueur_chemin(self, chemin):
-        lon = 0
-        for i in range( len(chemin) - 1 ):
-            lon += self.longueur( chemin[i], chemin[i+1])
-        return lon
+        def build_extended_graph(self):
+            roads = self._roads
+            edges = {}
+            max_fatigue = len(roads.keys())
+            for elt in roads.keys():
+                edges[elt] = []
+
+                for road in roads[elt]:
+                    arr, long, fatigue = road
+                    for i in range(max_fatigue):
+                        edges[elt].append(((arr, i), long))
+
+            return edges
+
+
+test = Network.from_file("examples/small.txt")
+
+test = test.build_simple_graph()
+
+print(test.shortest_path('lozere', 'saclay'))
