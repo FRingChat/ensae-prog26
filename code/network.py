@@ -72,19 +72,28 @@ class Network:
         simple_graph = Graph(edges)
         return simple_graph
 
-        def build_extended_graph(self):
-            roads = self._roads
-            edges = {}
-            max_fatigue = len(roads.keys())
-            for elt in roads.keys():
-                edges[elt] = []
+    def build_extended_graph(self):
+        roads = self._roads
+        edges = {}
 
-                for road in roads[elt]:
-                    arr, long, fatigue = road
-                    for i in range(max_fatigue):
-                        edges[elt].append(((arr, i), long))
+        # On borne la fatigue
+        max_fatigue = 0
+        for elt in roads.keys():
+            for road in roads[elt]:
+                arr, long, fatigue = road
+                max_fatigue += fatigue
 
-            return edges
+        # On créé les sommets
+        for elt in roads.keys():
+            edges[elt] = []
+
+            for road in roads[elt]:
+                arr, long, fatigue = road
+                for i in range(max_fatigue):
+                    edges[elt].append(((arr, i), long))
+
+        extended_graph = Graph(edges)
+        return extended_graph
 
 
 test = Network.from_file("examples/small.txt")

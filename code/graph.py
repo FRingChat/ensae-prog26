@@ -41,8 +41,16 @@ class Graph:
         # longueur d'un chemin
         lon = 0
         if len(chemin) >= 2:
-            for i in range(len(chemin)-1):
-                lon += self.longueur(chemin[i], chemin[i+1])
+            if isinstance(chemin[0], tuple):
+                fatigue = 1
+                for i in range(len(chemin)-1):
+                    point_i, fatigue_i = chemin[i]
+                    point_ibis, fatigue_ibis = chemin[i+1]
+                    fatigue += fatigue
+                    lon += self.longueur(point_i, point_ibis) * fatigue
+            else:
+                for i in range(len(chemin)-1):
+                    lon += self.longueur(chemin[i], chemin[i+1])
         return lon
 
     def shortest_path(self, depart, arrivee, chemin=[], chemin_trouve=[]):
@@ -52,12 +60,17 @@ class Graph:
             if self.longueur_chemin(chemin) <= self.longueur_chemin(chemin_trouve) or chemin_trouve == []:
                 # On explore les voisins
                 for point in self.neighbours(depart):
-                    point, on_sen_fout = point
+                    point, _ = point
 
-                    if point == arrivee:  # Si on a trouvé l'arrivée
+                    if isinstance(point, tuple):
+                        nom_point, _ = point
+                    else:
+                        nom_point = point
+
+                    if nom_point == arrivee:  # Si on a trouvé l'arrivée
                         chemin_trouve = nouveau_chemin + [point]
                     else:  # Sinon on continue de chercher
-                        exploration = self.shortest_path(point, arrivee, nouveau_chemin, chemin_trouve)
+                        exploration = self.shortest_path(nom_point, arrivee, nouveau_chemin, chemin_trouve)
                         # On vérifie que l'exploration a donné un chemin optimal
                         if self.longueur_chemin(exploration) <= self.longueur_chemin(chemin_trouve) or chemin_trouve == []:
                             chemin_trouve = exploration
