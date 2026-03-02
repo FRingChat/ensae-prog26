@@ -30,47 +30,50 @@ class Graph:
         return self._edges[node]
 
     def longueur(self, depart, arrivee):
-        # Longueur entre deux points
+        """ Renvoie une liste de forme :
+        [ longueur entre le départ et l'arrivée , la fatigue gagnée sur ce parcours ]"""
         liste_route = self._edges[depart]
         for route in liste_route:
             arr, long = route
             if arr == arrivee:
-                return int(long)
-    
+                if isinstance(long, tuple):
+                    # Si on a un graph étendu, on sépare la longueur de la fatigue
+                    long, fatigue = long
+                else:  # Sinon on fixe la fatigue à zéro sur ce segment
+                    fatigue = 0
+                return [int(long), fatigue]
+
     def longueur_chemin(self, chemin):
-        # longueur d'un chemin
+        """ Renvoie la longueur d'un chemin, en prennant en compte la fatigue s'il y en a """
         lon = 0
+        fatigue = 1
         if len(chemin) >= 2:
-            if isinstance(chemin[0], tuple):
-                fatigue = 1
-                for i in range(len(chemin)-1):
-                    point_i, fatigue_i = chemin[i]
-                    point_ibis, fatigue_ibis = chemin[i+1]
-                    fatigue += fatigue
-                    lon += self.longueur(point_i, point_ibis) * fatigue
-            else:
-                for i in range(len(chemin)-1):
-                    lon += self.longueur(chemin[i], chemin[i+1])
+            for i in range(len(chemin)-1):
+                # longueur est de forme [ longueur du segement , fatigue sur ce segment]
+                longueur = self.longueur(chemin[i], chemin[i+1])
+                lon += longueur[0]*fatigue
+
+                # La fatigue arrive après avoir marché, on l'incrémente donc à la fin du segment
+                fatigue += longueur[1]
         return lon
 
     def shortest_path(self, depart, arrivee, chemin=[], chemin_trouve=[]):
+        """ Renvoie une liste de tous les points traversés pour aller le
+        plus rapidement possible du départ à l'arrivée. Soit une liste de forme :
+        [ Départ , Etape 1 , Etape 2 , ... , Etape N , Arrivée ]"""
+
         if depart not in chemin:
             nouveau_chemin = chemin + [depart]
 
             if self.longueur_chemin(chemin) <= self.longueur_chemin(chemin_trouve) or chemin_trouve == []:
-                # On explore les voisins
+                # On explore les voisins s'ils sont plus courts que ceux qu'on a déjà trouvé
                 for point in self.neighbours(depart):
                     point, _ = point
 
-                    if isinstance(point, tuple):
-                        nom_point, _ = point
-                    else:
-                        nom_point = point
-
-                    if nom_point == arrivee:  # Si on a trouvé l'arrivée
+                    if point == arrivee:  # Si on a trouvé l'arrivée
                         chemin_trouve = nouveau_chemin + [point]
                     else:  # Sinon on continue de chercher
-                        exploration = self.shortest_path(nom_point, arrivee, nouveau_chemin, chemin_trouve)
+                        exploration = self.shortest_path(point, arrivee, nouveau_chemin, chemin_trouve)
                         # On vérifie que l'exploration a donné un chemin optimal
                         if self.longueur_chemin(exploration) <= self.longueur_chemin(chemin_trouve) or chemin_trouve == []:
                             chemin_trouve = exploration

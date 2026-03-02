@@ -73,24 +73,19 @@ class Network:
         return simple_graph
 
     def build_extended_graph(self):
+        """ Créé un Graph depuis Network qui prend en compte la fatigue """
         roads = self._roads
         edges = {}
 
-        # On borne la fatigue
-        max_fatigue = 0
-        for elt in roads.keys():
-            for road in roads[elt]:
-                arr, long, fatigue = road
-                max_fatigue += fatigue
-
-        # On créé les sommets
         for elt in roads.keys():
             edges[elt] = []
 
             for road in roads[elt]:
                 arr, long, fatigue = road
-                for i in range(max_fatigue):
-                    edges[elt].append(((arr, i), long))
+                # On met la fatigue avec la longueur, ainsi nous avons bien un graph
+                # Il n'y a qu'à séparer la longueur de la fatigue dans la méthode
+                # longueur() du module Graph pour adapter shortest_path
+                edges[elt].append((arr, (long, fatigue)))
 
         extended_graph = Graph(edges)
         return extended_graph
@@ -98,6 +93,6 @@ class Network:
 
 test = Network.from_file("examples/small.txt")
 
-test = test.build_simple_graph()
+test = test.build_extended_graph()
 
 print(test.shortest_path('lozere', 'saclay'))
