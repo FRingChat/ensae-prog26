@@ -52,6 +52,12 @@ class Network:
 
         return cls(roads=roads, start=start, end=end)
 
+    def neighbours(self, sommet):
+        """ Renvoie les voisins d'un sommet sous forme de liste """
+        if sommet not in self._roads:
+            return []
+        return self._roads[sommet]
+
     def build_simple_graph(self):
         """
         Builds an object of type Graph from the network, by ignoring the fatigue coefficient.
@@ -90,9 +96,58 @@ class Network:
         extended_graph = Graph(edges)
         return extended_graph
 
+    # -------------------------------------------------------------------------------------------
+    # Partie 1.3 ( à notre sauce )
+    # -------------------------------------------------------------------------------------------
 
-test = Network.from_file("examples/small.txt")
+    def longueur_chemin(self, chemin):
+        """ Renvoie la longueur d'un chemin, en prennant en compte la fatigue s'il y en a """
+        lon = 0
+        fatigue = 1
+        if len(chemin) >= 2:
+            for i in range(len(chemin)-1):
+                # longueur est de forme [ longueur du segement , fatigue sur ce segment]
 
-test = test.build_extended_graph()
+                for arrivee in self.neighbours(chemin[i]):
+                    nom, longueur_i, fatigue_i = arrivee
+                    if nom == chemin[i+1]:
+                        longueur, fat = longueur_i, fatigue_i
+                    
+                lon += longueur * fatigue
 
-print(test.shortest_path('lozere', 'saclay'))
+                # La fatigue arrive après avoir marché, on l'incrémente donc à la fin du segment
+                fatigue += fat
+        return lon
+
+    def shortest_path(self, depart, arrivee, chemin=[], chemin_trouve=[]):
+        """ Renvoie une liste de tous les points traversés pour aller le
+        plus rapidement possible du départ à l'arrivée. Soit une liste de forme :
+        [ Départ , Etape 1 , Etape 2 , ... , Etape N , Arrivée ]"""
+
+        if depart not in chemin:
+            nouveau_chemin = chemin + [depart]
+            print(len(chemin))
+
+            if self.longueur_chemin(chemin) <= self.longueur_chemin(chemin_trouve) or chemin_trouve == []:
+                # On explore les voisins s'ils sont plus courts que ceux qu'on a déjà trouvé
+                for point in self.neighbours(depart):
+                    point, _, _ = point
+
+                    if point == arrivee:  # Si on a trouvé l'arrivée
+                        chemin_trouve = nouveau_chemin + [point]
+                    else:  # Sinon on continue de chercher
+                        exploration = self.shortest_path(point, arrivee, nouveau_chemin, chemin_trouve)
+                        # On vérifie que l'exploration a donné un chemin optimal
+                        if self.longueur_chemin(exploration) <= self.longueur_chemin(chemin_trouve) or chemin_trouve == []:
+                            chemin_trouve = exploration
+
+        return chemin_trouve
+
+
+test = Network.from_file("examples/medium-largefatigue.txt")
+# test1 = test.build_extended_graph()
+# test2 = test.build_simple_graph()
+# print(test2.shortest_path('lozere', 'saclay'))
+# print(test1.shortest_path('lozere', 'saclay'))
+
+print(test.shortest_path('v0', 'v7'))

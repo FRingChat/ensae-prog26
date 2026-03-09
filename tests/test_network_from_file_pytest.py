@@ -72,3 +72,13 @@ def test_shortest_path_extended():
     # Assertions
     assert isinstance(extended_graph, Graph)
     assert extended_graph.shortest_path('lozere', 'saclay') == ['lozere', 'guichet', 'ensae', 'saclay']
+
+
+def test_neighbours_network():
+    """ Teste la méthode neighbours de la classe network """
+    # Setup
+    network = Network.from_file(NET_DIR / "small.txt")
+
+    # Assertions
+    assert network.neighbours("ensae") == [('saclay', 45, 0)]
+    assert network.neighbours("saclay") == []z

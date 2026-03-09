@@ -79,3 +79,12 @@ class Graph:
                             chemin_trouve = exploration
 
         return chemin_trouve
+
+
+class GraphImplicit(Graph):
+
+    def __init__(self, start):
+        self._edges = {start: self.neighbours(start)}
+
+    def ajouter(self, sommet):
+        self._edges[sommet] = self.neighbours(sommet)
