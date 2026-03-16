@@ -112,7 +112,7 @@ class Network:
                     nom, longueur_i, fatigue_i = arrivee
                     if nom == chemin[i+1]:
                         longueur, fat = longueur_i, fatigue_i
-                    
+
                 lon += longueur * fatigue
 
                 # La fatigue arrive après avoir marché, on l'incrémente donc à la fin du segment
@@ -143,11 +143,53 @@ class Network:
 
         return chemin_trouve
 
+    def short(self, depart, arrivee):
+        """
+        Renvoie le chemin de temps minimal du départ à l'arrivée en tenant
+        compte de la fatigue
+        """
 
-test = Network.from_file("examples/medium-largefatigue.txt")
+        a_visiter = [(0, 1, depart, [depart])]
+
+        # On créé un dictionnaire pour connaitre tout les cheminsles plus courts
+        temps_min = {(depart, 1): 0}
+
+        while len(a_visiter) > 0:  # Expolration des points à visiter
+
+            # On regarde le chemin le plus court en premier
+            a_visiter.sort(key=lambda x: x[0])
+            temps_actuel, fatigue_actuelle, noeud_actuel, chemin = a_visiter.pop(0)
+
+            if noeud_actuel == arrivee:
+                # On arrête la boucle quand on atteind l'arrivée
+                return chemin
+
+            # Pruning : si on a mieux pour aller au même point, on passe (grâce au dictionnaire)
+            if temps_actuel > temps_min.get((noeud_actuel, fatigue_actuelle), float('inf')):
+                continue
+
+            for point in self.neighbours(noeud_actuel):  # On explore les voisins
+                nom_voisin, longueur_arete, fatigue_arete = point
+
+                # On actualise la fatigue
+                nouveau_temps = temps_actuel + (longueur_arete * fatigue_actuelle)
+                nouvelle_fatigue = fatigue_actuelle + fatigue_arete
+
+                # Pruning : si on a mieux pour aller au même point, on passe (grâce au dictionnaire)
+                if nouveau_temps < temps_min.get((nom_voisin, nouvelle_fatigue), float('inf')):
+                    # Si on trouve le meilleur chemin, on actualise le dictionaire et notre chemin
+                    temps_min[(nom_voisin, nouvelle_fatigue)] = nouveau_temps
+                    nouveau_chemin = chemin + [nom_voisin]
+                    a_visiter.append((nouveau_temps, nouvelle_fatigue, nom_voisin, nouveau_chemin))
+
+        return "Pas de chemin"
+
+
+test = Network.from_file("examples/large-largefatigue.txt")
+# test = Network.from_file("examples/small.txt")
 # test1 = test.build_extended_graph()
 # test2 = test.build_simple_graph()
-# print(test2.shortest_path('lozere', 'saclay'))
+# print(test.short('lozere', 'saclay'))
 # print(test1.shortest_path('lozere', 'saclay'))
 
-print(test.shortest_path('v0', 'v7'))
+print(test.short('v0', 'v7'))
