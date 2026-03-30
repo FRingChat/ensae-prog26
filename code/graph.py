@@ -29,6 +29,10 @@ class Graph:
             return []
         return self._edges[node]
 
+    # -------------------------------------------------------------------------------------------
+    # Partie 1.1 et 1.2 (la 1.1 a été modifiée par la 1.2)
+    # -------------------------------------------------------------------------------------------
+
     def longueur(self, depart, arrivee):
         """ Renvoie une liste de forme :
         [ longueur entre le départ et l'arrivée , la fatigue gagnée sur ce parcours ]"""

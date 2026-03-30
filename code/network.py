@@ -52,11 +52,9 @@ class Network:
 
         return cls(roads=roads, start=start, end=end)
 
-    def neighbours(self, sommet):
-        """ Renvoie les voisins d'un sommet sous forme de liste """
-        if sommet not in self._roads:
-            return []
-        return self._roads[sommet]
+    # -------------------------------------------------------------------------------------------
+    # Partie 1.1
+    # -------------------------------------------------------------------------------------------
 
     def build_simple_graph(self):
         """
@@ -77,6 +75,10 @@ class Network:
 
         simple_graph = Graph(edges)
         return simple_graph
+
+    # -------------------------------------------------------------------------------------------
+    # Partie 1.2
+    # -------------------------------------------------------------------------------------------
 
     def build_extended_graph(self):
         """ Créé un Graph depuis Network qui prend en compte la fatigue """
@@ -100,6 +102,12 @@ class Network:
     # Partie 1.3 ( à notre sauce )
     # -------------------------------------------------------------------------------------------
 
+    def neighbours(self, sommet):
+        """ Renvoie les voisins d'un sommet sous forme de liste """
+        if sommet not in self._roads:
+            return []
+        return self._roads[sommet]
+
     def longueur_chemin(self, chemin):
         """ Renvoie la longueur d'un chemin, en prennant en compte la fatigue s'il y en a """
         lon = 0
@@ -119,7 +127,7 @@ class Network:
                 fatigue += fat
         return lon
 
-    def shortest_path(self, depart, arrivee, chemin=[], chemin_trouve=[]):
+    def shortest_path_network(self, depart, arrivee, chemin=[], chemin_trouve=[]):
         """ Renvoie une liste de tous les points traversés pour aller le
         plus rapidement possible du départ à l'arrivée. Soit une liste de forme :
         [ Départ , Etape 1 , Etape 2 , ... , Etape N , Arrivée ]"""
@@ -143,15 +151,23 @@ class Network:
 
         return chemin_trouve
 
-    def short(self, depart, arrivee):
+    # -------------------------------------------------------------------------------------------
+    # Partie 2
+    # -------------------------------------------------------------------------------------------
+
+    def A_etoile(self, depart, arrivee):
         """
         Renvoie le chemin de temps minimal du départ à l'arrivée en tenant
         compte de la fatigue
+
+        Nous avons implémenté dans ce script une methode de Pruning grâce au
+        dictionnaire temps_min, qui catalogue uniquements les chemins qui sont
+        intéressants.
         """
 
         a_visiter = [(0, 1, depart, [depart])]
 
-        # On créé un dictionnaire pour connaitre tout les cheminsles plus courts
+        # On créé un dictionnaire pour connaitre tout les chemins les plus courts
         temps_min = {(depart, 1): 0}
 
         while len(a_visiter) > 0:  # Expolration des points à visiter
@@ -164,32 +180,21 @@ class Network:
                 # On arrête la boucle quand on atteind l'arrivée
                 return chemin
 
-            # Pruning : si on a mieux pour aller au même point, on passe (grâce au dictionnaire)
-            if temps_actuel > temps_min.get((noeud_actuel, fatigue_actuelle), float('inf')):
-                continue
+            # Pruning : On ne continue que si on pas de meilleur chemin (grâce au dictionnaire)
+            if temps_actuel <= temps_min.get((noeud_actuel, fatigue_actuelle), float('inf')):
 
-            for point in self.neighbours(noeud_actuel):  # On explore les voisins
-                nom_voisin, longueur_arete, fatigue_arete = point
+                for point in self.neighbours(noeud_actuel):  # On explore les voisins
+                    nom_voisin, longueur_arete, fatigue_arete = point
 
-                # On actualise la fatigue
-                nouveau_temps = temps_actuel + (longueur_arete * fatigue_actuelle)
-                nouvelle_fatigue = fatigue_actuelle + fatigue_arete
+                    # On actualise la fatigue
+                    nouveau_temps = temps_actuel + (longueur_arete * fatigue_actuelle)
+                    nouvelle_fatigue = fatigue_actuelle + fatigue_arete
 
-                # Pruning : si on a mieux pour aller au même point, on passe (grâce au dictionnaire)
-                if nouveau_temps < temps_min.get((nom_voisin, nouvelle_fatigue), float('inf')):
-                    # Si on trouve le meilleur chemin, on actualise le dictionaire et notre chemin
-                    temps_min[(nom_voisin, nouvelle_fatigue)] = nouveau_temps
-                    nouveau_chemin = chemin + [nom_voisin]
-                    a_visiter.append((nouveau_temps, nouvelle_fatigue, nom_voisin, nouveau_chemin))
+                    # Pruning : si on a mieux pour aller au même point, on passe (grâce au dictionnaire)
+                    if nouveau_temps < temps_min.get((nom_voisin, nouvelle_fatigue), float('inf')):
+                        # Si on trouve le meilleur chemin, on actualise le dictionaire et notre chemin
+                        temps_min[(nom_voisin, nouvelle_fatigue)] = nouveau_temps
+                        nouveau_chemin = chemin + [nom_voisin]
+                        a_visiter.append((nouveau_temps, nouvelle_fatigue, nom_voisin, nouveau_chemin))
 
         return "Pas de chemin"
-
-
-test = Network.from_file("examples/large-largefatigue.txt")
-# test = Network.from_file("examples/small.txt")
-# test1 = test.build_extended_graph()
-# test2 = test.build_simple_graph()
-# print(test.short('lozere', 'saclay'))
-# print(test1.shortest_path('lozere', 'saclay'))
-
-print(test.short('v0', 'v7'))
