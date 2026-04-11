@@ -150,7 +150,7 @@ class Network:
                             chemin_trouve = exploration
 
         return chemin_trouve
-"""
+
     # -------------------------------------------------------------------------------------------
     # Partie 2
     # -------------------------------------------------------------------------------------------
@@ -315,5 +315,3 @@ mes_missions = [('v0', 'v3'), ('v4', 'v12')]
 chemin_final, temps_final = test.missions_multiples(mes_missions)
 print(f"Le chemin complet de l'agent est : {chemin_final}")
 print(f"Le temps total pour accomplir toutes les missions est de : {temps_final}")
-
-"""
