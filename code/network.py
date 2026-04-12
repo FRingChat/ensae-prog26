@@ -155,86 +155,41 @@ class Network:
     # Partie 2
     # -------------------------------------------------------------------------------------------
 
-    def A_etoile(self, depart, arrivee):
+    def A_etoile(self, depart, arrivee, temps_init=0, fatigue_init=1):
         """
-        Renvoie le chemin de temps minimal du départ à l'arrivée en tenant
-        compte de la fatigue
+        Renvoie le chemin de temps minimal, ainsi que le temps final et la fatigue finale.
 
         Nous avons implémenté dans ce script une methode de Pruning grâce au
         dictionnaire temps_min, qui catalogue uniquements les chemins qui sont
         intéressants.
+
+        Extension : pour adapter ce script aux missions intermédiaires, nous 
+        avons rajouté les paramêtres temps_init et fatigue_init et modifié A* pour 
+        les implémenter
         """
 
-        a_visiter = [(0, 1, depart, [depart])]
-
-        # On créé un dictionnaire pour connaitre tout les chemins les plus courts
-        temps_min = {(depart, 1): 0}
-
-        while len(a_visiter) > 0:  # Expolration des points à visiter
-
-            # On regarde le chemin le plus court en premier
-            a_visiter.sort(key=lambda x: x[0])
-            temps_actuel, fatigue_actuelle, noeud_actuel, chemin = a_visiter.pop(0)
-
-            if noeud_actuel == arrivee:
-                # On arrête la boucle quand on atteind l'arrivée
-                return chemin
-
-            # Pruning : On ne continue que si on pas de meilleur chemin (grâce au dictionnaire)
-            if temps_actuel <= temps_min.get((noeud_actuel, fatigue_actuelle), float('inf')):
-
-                for point in self.neighbours(noeud_actuel):  # On explore les voisins
-                    nom_voisin, longueur_arete, fatigue_arete = point
-
-                    # On actualise la fatigue
-                    nouveau_temps = temps_actuel + (longueur_arete * fatigue_actuelle)
-                    nouvelle_fatigue = fatigue_actuelle + fatigue_arete
-
-                    # Pruning : si on a mieux pour aller au même point, on passe (grâce au dictionnaire)
-                    if nouveau_temps < temps_min.get((nom_voisin, nouvelle_fatigue), float('inf')):
-                        # Si on trouve le meilleur chemin, on actualise le dictionaire et notre chemin
-                        temps_min[(nom_voisin, nouvelle_fatigue)] = nouveau_temps
-                        nouveau_chemin = chemin + [nom_voisin]
-                        a_visiter.append((nouveau_temps, nouvelle_fatigue, nom_voisin, nouveau_chemin))
-
-        return "Pas de chemin"
-
--------------------------------------------------- DEBUT DE LA PARTIE 3 ------------------------------------------------------------
-
-"""
-Alors du coup, j'ai choisi la première car c'est la plus simple. Le premier trouc à faire (le code suivant) c'est de remplacer la fonction A* de la 
-partie 2 par la fonction suivante comme ca elle prend une entrée temps_init et fatigue_init et elle renvoie ces valeurs à la fin pour q'elle puisse 
-les réutiliser à la missions suivante."""
- 
-
-
-def A_etoile(self, depart, arrivee, temps_init=0, fatigue_init=1):
-        """
-        Renvoie le chemin de temps minimal, ainsi que le temps final et la fatigue finale.
-        
-        Modification pour la Partie 3 : on ajoute des paramètres par défaut (temps_init et fatigue_init)
-        pour permettre à un agent de commencer un trajet en étant déjà fatigué par une mission précédente.
-        """
-
-        # On initialise la liste à visiter avec le temps et la fatigue passés en paramètres
+        # On initialise la liste de points à visiter avec le temps et la 
+        # fatigue passés en paramètres
         a_visiter = [(temps_init, fatigue_init, depart, [depart])]
 
-        # Le dictionnaire de pruning commence lui aussi avec le temps initial
-        temps_min = {(depart, fatigue_init): temps_init}
+        # On créé un dictionnaire qui rescense les chemins les plus courts entre le
+        # point de départ et les autres points 
+        # (Extension) On rajoute le paramêtre de fatigue dans le dictionnaire car il fait varier 
+        # la rapidité des chemins
+        prunning = {(depart, fatigue_init): temps_init}
 
-        while len(a_visiter) > 0:  # Exploration des points à visiter
+        while len(a_visiter) > 0:
 
             # On regarde le chemin le plus court en premier
             a_visiter.sort(key=lambda x: x[0])
             temps_actuel, fatigue_actuelle, noeud_actuel, chemin = a_visiter.pop(0)
 
-            if noeud_actuel == arrivee:
-                # MODIFICATION IMPORTANTE : on renvoie aussi le temps et la fatigue 
-                # pour pouvoir les conserver d'une mission à l'autre.
+            if noeud_actuel == arrivee: 
+                # Si on est arrivés
                 return chemin, temps_actuel, fatigue_actuelle
 
-            # Pruning : On ne continue que si on n'a pas de meilleur chemin
-            if temps_actuel <= temps_min.get((noeud_actuel, fatigue_actuelle), float('inf')):
+            # Grace au dictionnaire de prunning, on ne continue que si on n'a pas de meilleur chemin
+            if temps_actuel <= prunning.get((noeud_actuel, fatigue_actuelle), float('inf')):
 
                 for point in self.neighbours(noeud_actuel):  # On explore les voisins
                     nom_voisin, longueur_arete, fatigue_arete = point
@@ -243,20 +198,22 @@ def A_etoile(self, depart, arrivee, temps_init=0, fatigue_init=1):
                     nouveau_temps = temps_actuel + (longueur_arete * fatigue_actuelle)
                     nouvelle_fatigue = fatigue_actuelle + fatigue_arete
 
-                    # Pruning : si on a mieux pour aller au même point, on passe
-                    if nouveau_temps < temps_min.get((nom_voisin, nouvelle_fatigue), float('inf')):
-                        temps_min[(nom_voisin, nouvelle_fatigue)] = nouveau_temps
+                    # Prunning : on ne s'intéresse à un chemin que s'il est encore intéressant
+                    if nouveau_temps < prunning.get((nom_voisin, nouvelle_fatigue), float('inf')):
+                        prunning[(nom_voisin, nouvelle_fatigue)] = nouveau_temps
                         nouveau_chemin = chemin + [nom_voisin]
                         a_visiter.append((nouveau_temps, nouvelle_fatigue, nom_voisin, nouveau_chemin))
 
         return "Pas de chemin", temps_init, fatigue_init
 
+    # -------------------------------------------------------------------------------------------
+    # Partie 3 - Extension (Missions multiples)
+    # -------------------------------------------------------------------------------------------
 
-""" Ensuite, toujours dans network a la suite de la nouvelle A*, on crée la methode suivante (le code en dessous), c'est ca qui gère l'enchaînement des missions et normalement c'est expliqué dans le code"""
-
-def missions_multiples(self, liste_missions):
+    def missions_multiples(self, liste_missions):
         """
-        Extension 1 : Gère plusieurs missions à la suite pour un seul agent.
+        Nous avons choisi de faire la première extension, qui gère 
+        plusieurs missions à la suite pour un seul agent.
         
         Prend en entrée une liste de missions sous forme de tuples : 
         Exemple : [('A', 'B'), ('C', 'D')] (Aller de A à B, puis de C à D).
@@ -268,50 +225,35 @@ def missions_multiples(self, liste_missions):
         fatigue_courante = 1
         chemin_global = []
 
-        # On boucle sur chaque mission (en utilisant l'index pour savoir si c'est la dernière)
         for i in range(len(liste_missions)):
             depart_mission, arrivee_mission = liste_missions[i]
 
-            # --- ETAPE 1 : RÉALISER LA MISSION ---
-            # On appelle notre A* modifié qui va prendre en compte la fatigue déjà accumulée
+            # On appelle A* qui va prendre en compte la fatigue déjà accumulée
             chemin_mission, temps_courant, fatigue_courante = self.A_etoile(
                 depart_mission, arrivee_mission, temps_courant, fatigue_courante
             )
-
-            # Pour l'affichage du chemin global, on évite les doublons.
-            # Si c'est le tout premier trajet, on ajoute tout le chemin.
-            if not chemin_global:
+            
+            if chemin_global == []:  
+                # Si c'est le tout premier trajet, on ajoute tout le chemin.
                 chemin_global.extend(chemin_mission)
             else:
-                # Sinon, on omet le premier point (car c'est le même que le dernier point du trajet précédent)
+                # Sinon, on omet le premier point car c'est le même que le
+                # dernier point du trajet précédent (risque de doublons)
                 chemin_global.extend(chemin_mission[1:])
 
-            # --- ETAPE 2 : TRANSITION VERS LA MISSION SUIVANTE ---
-            # S'il reste des missions après celle-ci, l'agent doit se déplacer
-            # de l'arrivée de la mission actuelle vers le départ de la mission suivante.
             if i < len(liste_missions) - 1:
+                # S'il reste des missions après celle-ci, l'agent doit se déplacer
+                # de l'arrivée de la mission actuelle vers le départ de la mission suivante.
                 prochain_depart = liste_missions[i+1][0]
                 
-                # On vérifie si l'agent n'est pas déjà sur place
                 if arrivee_mission != prochain_depart:
-                    # Nouveau trajet : de l'arrivée actuelle au prochain départ
+                    # Si l'agent n'est pas déjà sur place, on cherche un chemin 
+                    # allant de l'arrivée actuelle au prochain départ
                     chemin_transition, temps_courant, fatigue_courante = self.A_etoile(
                         arrivee_mission, prochain_depart, temps_courant, fatigue_courante
                     )
                     
                     # On ajoute ce trajet de transition au chemin global (toujours en évitant le doublon du 1er point)
-                    chemin_global.extend(chemin_transition[1:])
+                    chemin_global += chemin_transition[1:]
 
-        # Une fois toutes les missions et transitions effectuées, on renvoie le résultat final
         return chemin_global, temps_courant
-
-
-""" Enfin, ca m'a produit un test automatiquement à mettre dans le main je le cope colle juste en dessous"""
-
-print("\n--- TEST EXTENSION 1 : MISSIONS MULTIPLES ---")
-# On invente une suite de missions (assure-toi que ces noeuds existent dans ton fichier texte)
-mes_missions = [('v0', 'v3'), ('v4', 'v12')] 
-
-chemin_final, temps_final = test.missions_multiples(mes_missions)
-print(f"Le chemin complet de l'agent est : {chemin_final}")
-print(f"Le temps total pour accomplir toutes les missions est de : {temps_final}")
