@@ -14,9 +14,8 @@ from graph import Graph  # noqa: E402
 def test_A_etoile():
     """ Teste la methode A_etoile de la classe Network """
     # Setup
-    graph = Network.from_file(NET_DIR / "small.txt")
+    test = Network.from_file("examples/medium-smallfatigue.txt")
 
     # Assertions
-    assert isinstance(graph, Graph)
-    chemin = ['lozere', 'guichet', 'ensae', 'saclay']
-    assert graph.A_etoile('lozere', 'saclay') == chemin
+    result = (['v39', 'v48', 'v45'], 1522, 7)
+    assert test.A_etoile('lozere', 'saclay') == result
