@@ -15,7 +15,9 @@ def test_shortest_path_simple():
     # Setup
     simple_graph = Network.from_file(NET_DIR / "small.txt")
     simple_graph = simple_graph.build_simple_graph()
+    test = Network.from_file(NET_DIR / "medium-smallfatigue.txt")
 
     # Assertions
     assert simple_graph.shortest_path('lozere', 'saclay') == ['lozere', 'ensae', 'saclay']
     assert simple_graph.shortest_path('guichet', 'saclay') == ['guichet', 'ensae', 'saclay']
+    assert test.shortest_path('v0', 'v3') == ['v0', 'v3']

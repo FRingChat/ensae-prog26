@@ -155,7 +155,7 @@ class Network:
     # Partie 2
     # -------------------------------------------------------------------------------------------
 
-    def A_etoile(self, depart, arrivee, temps_init=0, fatigue_init=1):
+    def A_etoile(self, depart, arrivee, temps_init=0, fatigue_init=1, point_repos = ''):
         """
         Renvoie le chemin de temps minimal, ainsi que le temps final et la fatigue finale.
 
@@ -163,9 +163,9 @@ class Network:
         dictionnaire temps_min, qui catalogue uniquements les chemins qui sont
         intéressants.
 
-        Extension : pour adapter ce script aux missions intermédiaires, nous 
+        Extensions : pour adapter ce script aux missions intermédiaires, nous 
         avons rajouté les paramêtres temps_init et fatigue_init et modifié A* pour 
-        les implémenter
+        les implémenter, ainsi que le paramêtre point_repos
         """
 
         # On initialise la liste de points à visiter avec le temps et la 
@@ -187,6 +187,10 @@ class Network:
             if noeud_actuel == arrivee: 
                 # Si on est arrivés
                 return chemin, temps_actuel, fatigue_actuelle
+            
+            if noeud_actuel == point_repos:
+                # Extension du point de repos
+                fatigue_actuelle = 1
 
             # Grace au dictionnaire de prunning, on ne continue que si on n'a pas de meilleur chemin
             if temps_actuel <= prunning.get((noeud_actuel, fatigue_actuelle), float('inf')):
@@ -207,7 +211,7 @@ class Network:
         return "Pas de chemin", temps_init, fatigue_init
 
     # -------------------------------------------------------------------------------------------
-    # Partie 3 - Extension (Missions multiples)
+    # Partie 3 - Extensions
     # -------------------------------------------------------------------------------------------
 
     def missions_multiples(self, liste_missions):
@@ -257,3 +261,42 @@ class Network:
                     chemin_global += chemin_transition[1:]
 
         return chemin_global, temps_courant
+
+    def point_de_repos(self):
+        """ Dans cette extension, on suppose qu'un point réinitialise la fatigue.
+        L'objectif est de calculer l'endroit optimal pour placer le point de repos.
+
+        Nous avons choisit de considérer optimal le point qui réduit le plus le 
+        temps de chaque chemin. Ainsi, pour chaque chemin on détermine quel serait le
+        meilleur point de repos, et à la fin, on élit celui qui a le plus de votes. """
+
+        points_optimaux = {}
+
+        # On va tester tous les chemins possibles du graph
+        for depart in self._roads():
+            for arrivee in self._roads():
+                
+                # On enlève tous les cas qui ne sont pas intéressants 
+                if arrivee == depart or arrivee in self.neighbours(depart):
+                    continue
+
+                dico_repos = []
+                for point_repos in self.roads():
+                    # Pour chaque point de repos possible on regarde le temps minimal 
+                    # pour aller du départ à l'arrivée
+                    _ , temps, _ = self.A_etoile(depart, arrivee, 0, 1, point_repos)
+                    dico_repos[point_repos] = temps
+
+            # On regarde quel a été le point de repos pour lequel le chemin à été le plus rapide
+            # S'il y en a plusieurs, alors tantpis, un seul sera choisit (à améliorer)
+            point_repos_optimal = min(dico_repos, key=dico_repos.get)
+
+            # On ajoute un vote au meilleur point pour ce chemin
+            if point_repos_optimal in points_optimaux.keys():
+                points_optimaux[point_repos_optimal] += 1
+            else:
+                points_optimaux[point_repos_optimal] = 1
+
+        # Le point qui a le plus de vote est 'élu' point de repos optimal pour ce graph
+        point_optimal_graph = max(points_optimaux, key=points_optimaux.get)
+        return point_optimal_graph

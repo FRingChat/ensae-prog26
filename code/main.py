@@ -15,21 +15,21 @@ from network import Network
 # --------------------------------------------------------
 
 # Load the network
-network_file = NET_DIR / "small.txt"
+network_file = NET_DIR / "medium-smallfatigue.txt"
 network = Network.from_file(network_file)
 
 
 test1 = network.build_extended_graph()
 test2 = network.build_simple_graph()
-# print(network.longueur_chemin(['lozère']))
-# print(test1.shortest_path('lozere', 'saclay'))
+# print(network.longueur_chemin(['v10', 'v3', 'v12']))
+# print(test1.shortest_path('v0', 'v5'))
 
 
-network_file = NET_DIR / "large-largefatigue.txt"
-network = Network.from_file(network_file)
+# network_file = NET_DIR / "large-largefatigue.txt"
+# network = Network.from_file(network_file)
 
-test = Network.from_file("examples/large-largefatigue.txt")
-# print(test.A_etoile('v0', 'v12'))
+test = Network.from_file("examples/medium-smallfatigue.txt")
+# # print(test.A_etoile('v0', 'v12'))
 
-missions = [('v0', 'v12'), ('v14', 'v19'), ('v39', 'v45')]
+missions = [('v0', 'v34'), ('v34', 'v99')]
 print(test.missions_multiples(missions))
