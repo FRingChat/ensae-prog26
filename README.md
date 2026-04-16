@@ -48,5 +48,5 @@ Cette deuxième version à le même objectif, mais utilise une methodologie diff
 ## *Tests*
 Pour chaque methode définie ci-dessus, il existe un test, rangé dans le dossier **Tests**, qui vérifie le bon fonctionnement de la methode.
 
-## *Examples*
+## *Exemples*
 C'est dans ce fichier que sont stockés tous les network/graph sous forme de fichiers texts. 
