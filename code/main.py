@@ -10,13 +10,15 @@ sys.path.append(str(ROOT / "code"))
 
 NET_DIR = ROOT / "examples"
 
-from network import Network
+from network import Network  # noqa: E402
 
 # --------------------------------------------------------
 
 # Load the network
 network_file = NET_DIR / "medium-smallfatigue.txt"
 network = Network.from_file(network_file)
+
+print(network.point_de_repos())
 
 
 test1 = network.build_extended_graph()
@@ -32,4 +34,4 @@ test = Network.from_file("examples/medium-smallfatigue.txt")
 # # print(test.A_etoile('v0', 'v12'))
 
 missions = [('v0', 'v34'), ('v34', 'v99')]
-print(test.missions_multiples(missions))
+# print(test.missions_multiples(missions))

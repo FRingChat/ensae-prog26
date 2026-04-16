@@ -134,7 +134,7 @@ class Network:
 
         if depart not in chemin:
             nouveau_chemin = chemin + [depart]
-            print(len(chemin))
+            # print(len(chemin))
 
             if self.longueur_chemin(chemin) <= self.longueur_chemin(chemin_trouve) or chemin_trouve == []:
                 # On explore les voisins s'ils sont plus courts que ceux qu'on a déjà trouvé
@@ -273,15 +273,15 @@ class Network:
         points_optimaux = {}
 
         # On va tester tous les chemins possibles du graph
-        for depart in self._roads():
-            for arrivee in self._roads():
+        for depart in self._roads.keys():
+            for arrivee in self._roads.keys():
                 
                 # On enlève tous les cas qui ne sont pas intéressants 
                 if arrivee == depart or arrivee in self.neighbours(depart):
                     continue
 
-                dico_repos = []
-                for point_repos in self.roads():
+                dico_repos = {}
+                for point_repos in self._roads.keys():
                     # Pour chaque point de repos possible on regarde le temps minimal 
                     # pour aller du départ à l'arrivée
                     _ , temps, _ = self.A_etoile(depart, arrivee, 0, 1, point_repos)
