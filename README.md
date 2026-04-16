@@ -37,8 +37,13 @@ Calcule la distance ressentie d'un chemin, en prennant en compte la fatigue s'il
 Equivalent de la methode `shortest_path` de la classe **Graph**. L'objectif est de gagner du temps par rapport à cette autre methode en ne transformant pas le network en graph, et en l'utilisant sous sa forme brute. Cependant, cette méthode reste assez lente.
 ##### `network.A_etoile(depart, arrivee)`
 Exactement le même objectif que la methode `shortest_path` mais en fonctionnant de manière itérative plutôt que récursive. Cette méthode est beaucoup plus rapide, et renvoie un tuple de forme `(chemin, longueur_totale, fatigue_finale)`.
+#### *Extensions*
 ##### `network.missions_multiples(liste_missions)`
-Cette methode est une extension, qui gère plusieurs missions à la suite pour un seul agent. Par mission nous entendons un chemin entre un point de départ et d'arrivée.
+Cette première extension gère plusieurs missions à la suite pour un seul agent. Par mission nous entendons un chemin entre un point de départ et d'arrivée.
+##### `network.point_de_reposV1()`
+Cette extension est une première approche du problème du point de repos. L'idée est de placer sur le graph un point de repos qui réinitialise la fatigue lorsqu'on y passe. Dans cette première version, on évalue quel point de repos est optimal pour chaque chemin possible du graph, et on lui ajoute un vote. A la fin, on garde le point de repos ayant le plus de vote. Cette methode est très longue à executer, car il y a `n!` chemins à évaluer, et `n` points de repos à tester.
+##### `network.point_de_repos()`
+Cette deuxième version à le même objectif, mais utilise une methodologie différente pour être plus rapide. En effet, précedement nous devions lancer la fonction `A_etoile` `n * n!` fois car chaque point de repos modifiait un peu le graph. Ici, on évalue le temps cumulé de tous les chemins du graph pour chaque point de repos. Cela fait gagner du temps car on commence par fixer le point de repos, ce qui permet de créer un dictionnaire de prunning global sur le graph de ce point. Ce dictionnaire est donné à la fonction `A_etoile` ce qui lui épargne des branches de calcul. Cepndant, il reste toujours autant de points et de chemins, donc cette extension reste aussi assez lente.
 
 ## *Tests*
 Pour chaque methode définie ci-dessus, il existe un test, rangé dans le dossier **Tests**, qui vérifie le bon fonctionnement de la methode.
