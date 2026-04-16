@@ -18,8 +18,7 @@ from network import Network  # noqa: E402
 network_file = NET_DIR / "medium-smallfatigue.txt"
 network = Network.from_file(network_file)
 
-print(network.point_de_repos())
-
+# print(network.point_de_repos())
 
 test1 = network.build_extended_graph()
 test2 = network.build_simple_graph()
