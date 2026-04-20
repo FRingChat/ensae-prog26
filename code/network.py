@@ -144,7 +144,7 @@ class Network:
                     if point == arrivee:  # Si on a trouvé l'arrivée
                         chemin_trouve = nouveau_chemin + [point]
                     else:  # Sinon on continue de chercher
-                        exploration = self.shortest_path(point, arrivee, nouveau_chemin, chemin_trouve)
+                        exploration = self.shortest_path_network(point, arrivee, nouveau_chemin, chemin_trouve)
                         # On vérifie que l'exploration a donné un chemin optimal
                         if self.longueur_chemin(exploration) <= self.longueur_chemin(chemin_trouve) or chemin_trouve == []:
                             chemin_trouve = exploration
